@@ -1,0 +1,337 @@
+{
+  "name": "Google Map",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        -80
+      ],
+      "id": "c25e4d21-c398-41c1-bd63-7a2312cdbc94",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://maps.googleapis.com/maps/api/place/textsearch/json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "software houses in Islamabad"
+            },
+            {
+              "name": "key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -336,
+        -80
+      ],
+      "id": "b3653d38-7a3f-499d-a264-8c3f3c754f64",
+      "name": "Scrape Google Maps"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get first input JSON\nconst input = $input.first().json;\n\n// Convert to full text so regex can extract URLs\nconst text = JSON.stringify(input);\n\n// URL regex (corrected)\nconst regex = /https?:\\/\\/[^\\s\"'<>]+/g;\n\n// Match all URLs\nconst websites = text.match(regex) || [];\n\n// Return as separate items\nreturn websites.map(url => ({\n  json: { url }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -128,
+        -80
+      ],
+      "id": "2d8f4768-65cd-4407-9f8d-6a98c9a0dbfc",
+      "name": "Extract URLs"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "38177ed6-c6b1-4642-8385-c0ad8fa6c5ed",
+              "leftValue": "={{ $json.url }}",
+              "rightValue": "gstatic",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        48,
+        -80
+      ],
+      "id": "d41c1b3a-06f4-4e1d-a533-160c2ac69d21",
+      "name": "Filter Google URLs"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        256,
+        -80
+      ],
+      "id": "3896d40d-ee8c-4b47-a2a1-12210eb80e39",
+      "name": "Remove Duplicates"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        464,
+        -80
+      ],
+      "id": "34069e35-68ed-4b91-8f15-0590faed49d9",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1088,
+        16
+      ],
+      "id": "9137507d-8de1-42ee-a53a-1a85c2d151fb",
+      "name": "Wait",
+      "webhookId": "eca68ea2-d753-4b30-98c6-5fa2c230e604"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get input safely\nconst input = JSON.stringify($input.first().json);\n\n// Correct email regex (skips images)\nconst regex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.(?!jpg|jpeg|png|gif|webp|svg)[a-zA-Z]{2,}/g;\n\n// Extract emails\nconst emails = input.match(regex) || [];\n\n// Output\nreturn emails.map(email => ({\n  json: { email }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1296,
+        16
+      ],
+      "id": "22d11ffe-1eca-4e34-afee-912b0282316f",
+      "name": "Extract Emails"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        -128
+      ],
+      "id": "df7229ec-fc89-410c-853b-ed5443f2ddc5",
+      "name": "Wait1",
+      "webhookId": "1f2cc7c0-7f19-4bb8-9cec-55954bd7bac0"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "eee80497-aafd-4f26-a497-103b596f6229",
+              "leftValue": "",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        864,
+        -128
+      ],
+      "id": "c1b71c96-5ea8-4aa6-ae72-c25a3ec50e3b",
+      "name": "Filter Out Empties"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        672,
+        16
+      ],
+      "id": "4f535252-3f62-47f7-9252-e8448fc26960",
+      "name": "Scrape Site"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Scrape Google Maps",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape Google Maps": {
+      "main": [
+        [
+          {
+            "node": "Extract URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract URLs": {
+      "main": [
+        [
+          {
+            "node": "Filter Google URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Google URLs": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Scrape Site",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Extract Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Emails": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Filter Out Empties",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape Site": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a1770b31-aae0-486b-af2e-d33a4262b0cc",
+  "meta": {
+    "instanceId": "3d376027b7c5e00d0af30dd4d2431447f6f406c74dbb5c35ace90a073f26d18c"
+  },
+  "id": "U2eZ10BdEdxZT1NP",
+  "tags": []
+}
