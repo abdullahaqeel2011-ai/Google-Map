@@ -99,4 +99,4 @@ Licensed for educational and commercial use.
 
 Abdullah Aqeel
 
-AI Automation Expert | Software Quality Assurance Engineer
+AI Automation Expert | Software Quality Assurance Engineer (SQAE)
